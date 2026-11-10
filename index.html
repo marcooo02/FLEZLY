@@ -89,11 +89,36 @@ async function logout(){
 }
 
 function showAccount(session){
- const logged=!!session?.user;
- document.getElementById("access").classList.toggle("hidden",logged);
- document.getElementById("account").classList.toggle("hidden",!logged);
- if(logged) document.getElementById("user").textContent=session.user.email;
+ 
+async function showAccount(session){
+  const logged = !!session?.user;
+
+  document.getElementById("access").classList.toggle("hidden", logged);
+  document.getElementById("account").classList.toggle("hidden", !logged);
+
+  if(logged){
+    document.getElementById("user").textContent = session.user.email;
+
+    const {data, error} = await db
+      .from("wallets")
+      .select("points, balance_cents")
+      .eq("user_id", session.user.id)
+      .single();
+
+    if(error){
+      console.error("Errore portafoglio:", error);
+      return;
+    }
+
+    document.getElementById("points").textContent = data.points;
+    document.getElementById("balance").textContent =
+      (data.balance_cents / 100).toFixed(2).replace(".", ",") + " €";
+  }
+}
+
 }
 </script>
 </body>
-</html>
+</ht<p>CS: <b id="points">0</b></p>
+
+<p>Saldo: <b id="balance">0,00 €</b></p>ml>
