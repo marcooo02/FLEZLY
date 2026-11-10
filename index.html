@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLEZLY</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{margin:0;background:#090909;color:#fff;font-family:Arial;text-align:center;padding:25px}
+h1{color:#e5c16b;letter-spacing:5px;font-size:38px}
+.crown{font-size:48px;color:#e5c16b}
+.card{max-width:420px;margin:20px auto;background:#171717;border:1px solid #a8863d;border-radius:18px;padding:22px}
+input{display:block;width:90%;margin:12px auto;padding:13px;border-radius:9px;border:1px solid #a8863d;background:#080808;color:white;font-size:15px}
+button{width:95%;padding:13px;margin:7px;border:0;border-radius:9px;background:#dfbd68;color:#17120a;font-weight:bold;font-size:15px}
+.secondary{background:#333;color:#f1d78d}
+.gold{color:#e5c16b}
+small{color:#aaa}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="crown">♛</div>
+<h1>FLEZLY</h1>
+<p class="gold">GIOCA • COMPLETA • GUADAGNA</p>
+
+<div class="card" id="access">
+<h2 class="gold">Benvenuto in FLEZLY</h2>
+<input id="email" type="email" placeholder="La tua email">
+<input id="password" type="password" placeholder="La tua password">
+<button onclick="register()">REGISTRATI</button>
+<button class="secondary" onclick="login()">ACCEDI</button>
+<p id="message"></p>
+<small>Usa la tua email vera per confermare la registrazione.</small>
+</div>
+
+<div class="card hidden" id="account">
+<h2 class="gold">Il tuo account FLEZLY</h2>
+<p id="user"></p>
+<hr>
+<h3 class="gold">IL TUO PORTAFOGLIO</h3>
+<p>CS: <b>0</b></p>
+<p>Saldo: <b>0,00 €</b></p>
+<p><small>I premi non sono ancora attivi.</small></p>
+<button class="secondary" onclick="logout()">ESCI</button>
+</div>
+
+<script>
+const SUPABASE_URL = "https://fmboclbkxozjlopcmmzs.supabase.co";
+const SUPABASE_KEY = "sb_publishable_nXlpcKw9caMut0Lzao0ZaQ_tbUMKcBM";
+
+let db = null;
+
+if(window.supabase &&
+   SUPABASE_URL.startsWith("https://") &&
+   SUPABASE_KEY.startsWith("sb_publishable_")){
+  db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  db.auth.getSession().then(({data})=>showAccount(data.session));
+  db.auth.onAuthStateChange((_event,session)=>showAccount(session));
+}
+
+function message(text){
+ document.getElementById("message").textContent=text;
+}
+
+async function register(){
+ if(!db){message("Configurazione Supabase da completare.");return;}
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+ if(!email || password.length<6){message("Inserisci email e password di almeno 6 caratteri.");return;}
+ message("Registrazione in corso...");
+ const {error}=await db.auth.signUp({
+  email,password,
+  options:{emailRedirectTo:window.location.origin+window.location.pathname}
+ });
+ message(error ? error.message : "Registrazione inviata! Controlla la tua email per confermare.");
+}
+
+async function login(){
+ if(!db){message("Configurazione Supabase da completare.");return;}
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+ const {error}=await db.auth.signInWithPassword({email,password});
+ message(error ? error.message : "Accesso effettuato!");
+}
+
+async function logout(){
+ if(db) await db.auth.signOut();
+}
+
+function showAccount(session){
+ const logged=!!session?.user;
+ document.getElementById("access").classList.toggle("hidden",logged);
+ document.getElementById("account").classList.toggle("hidden",!logged);
+ if(logged) document.getElementById("user").textContent=session.user.email;
+}
+</script>
+</body>
+</html>
