@@ -64,10 +64,12 @@ if(window.supabase &&
 db.auth.onAuthStateChange((event, session) => {
   showAccount(session);
   if (event === "PASSWORD_RECOVERY") {
-    document.getElementById("message").textContent =
-      "Inserisci la nuova password nella schermata di recupero.";
+  document.getElementById("message").textContent =
+    "Inserisci la nuova password nella schermata di recupero.";
+
+  document.getElementById("newPasswordBox").classList.remove("hidden");
+  document.getElementById("newPassword").value = "";
   }
-});
 function message(text){
  document.getElementById("message").textContent=text;
 }
