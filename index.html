@@ -30,7 +30,10 @@ small{color:#aaa}
 <input id="password" type="password" placeholder="La tua password">
 <button onclick="register()">REGISTRATI</button>
 <button class="secondary" onclick="login()">ACCEDI</button><button type="button" onclick="resetPassword()">Password dimenticata?</button>
-<p id="message"></p>
+<p id="message"></p><div id="newPasswordBox" class="hidden">
+  <input id="newPassword" type="password" placeholder="Nuova password">
+  <button type="button" onclick="saveNewPassword()">SALVA NUOVA PASSWORD</button>
+</div>
 <small>Usa la tua email vera per confermare la registrazione.</small>
 </div>
 
@@ -58,7 +61,13 @@ if(window.supabase &&
   db.auth.getSession().then(({data})=>showAccount(data.session));
   db.auth.onAuthStateChange((_event,session)=>showAccount(session));
 }
-
+db.auth.onAuthStateChange((event, session) => {
+  showAccount(session);
+  if (event === "PASSWORD_RECOVERY") {
+    document.getElementById("message").textContent =
+      "Inserisci la nuova password nella schermata di recupero.";
+  }
+});
 function message(text){
  document.getElementById("message").textContent=text;
 }
@@ -86,7 +95,23 @@ async function login(){
   if(!db){
     message("Configurazione Supabase da completare.");
     return;
+  }async function saveNewPassword(){
+  const password = document.getElementById("newPassword").value;
+
+  if(password.length < 6){
+    message("La password deve avere almeno 6 caratteri.");
+    return;
   }
+
+  const {error} = await db.auth.updateUser({password});
+
+  if(error){
+    message("Errore: " + error.message);
+  } else {
+    message("Password aggiornata! Ora puoi accedere.");
+    document.getElementById("newPasswordBox").classList.add("hidden");
+  }
+   }
 
   const email = document.getElementById("email").value.trim();
 
