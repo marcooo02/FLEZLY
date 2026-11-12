@@ -82,7 +82,29 @@ async function login(){
  const password=document.getElementById("password").value;
  const {error}=await db.auth.signInWithPassword({email,password});
  message(error ? error.message : "Accesso effettuato!");
-}
+}async function resetPassword(){
+  if(!db){
+    message("Configurazione Supabase da completare.");
+    return;
+  }
+
+  const email = document.getElementById("email").value.trim();
+
+  if(!email){
+    message("Inserisci prima la tua email.");
+    return;
+  }
+
+  message("Invio richiesta di recupero...");
+
+  const {error} = await db.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname
+  });
+
+  message(error
+    ? error.message
+    : "Email di recupero inviata! Controlla anche Spam.");
+         }
 
 async function logout(){
  if(db) await db.auth.signOut();
