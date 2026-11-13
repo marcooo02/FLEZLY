@@ -97,45 +97,6 @@ async function login(){
   if(!db){
     message("Configurazione Supabase da completare.");
     return;
-  }async function saveNewPassword(){
-  const password = document.getElementById("newPassword").value;
-
-  if(password.length < 6){
-    message("La password deve avere almeno 6 caratteri.");
-    return;
-  }
-
-  const {error} = await db.auth.updateUser({password});
-
-  if(error){
-    message("Errore: " + error.message);
-  } else {
-    message("Password aggiornata! Ora puoi accedere.");
-    document.getElementById("newPasswordBox").classList.add("hidden");
-  }
-   }
-
-  const email = document.getElementById("email").value.trim();
-
-  if(!email){
-    message("Inserisci prima la tua email.");
-    return;
-  }
-
-  message("Invio richiesta di recupero...");
-
-  const {error} = await db.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + window.location.pathname
-  });
-
-  message(error
-    ? error.message
-    : "Email di recupero inviata! Controlla anche Spam.");
-         }
-async function resetPassword(){
-  if(!db){
-    message("Configurazione Supabase da completare.");
-    return;
   }
 
   const email = document.getElementById("email").value.trim();
@@ -172,12 +133,11 @@ async function saveNewPassword(){
     message("Password aggiornata! Ora puoi accedere.");
     document.getElementById("newPasswordBox").classList.add("hidden");
   }
-  }
-async function logout(){
+  }async function logout(){
  if(db) await db.auth.signOut();
 }
 
-function showAccount(session){
+
  
 async function showAccount(session){
   const logged = !!session?.user;
